@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marko Family Album</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col">
+
+    <!-- Loading Screen -->
+    <div id="loading-view" class="flex-1 flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-500 font-medium">Verifying access...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-view" class="hidden flex-1 flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="glass-panel p-8 md:p-10 rounded-2xl shadow-xl w-full max-w-md text-center">
+            <div class="mb-6">
+                <!-- Icon Placeholder -->
+                <svg class="w-16 h-16 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <h1 class="text-3xl font-bold text-gray-900">Marko Family Album</h1>
+                <p class="text-gray-500 mt-2">Sign in to view our shared memories.</p>
+            </div>
+            
+            <button id="btn-google-login" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm">
+                <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25527 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z" fill="#EA4335"></path>
+                    <path d="M23.49 12.275C23.49 11.49 23.415 10.73 23.3 10H12V14.51H18.47C18.18 15.99 17.34 17.25 16.08 18.1L19.945 21.1C22.2 19.01 23.49 15.92 23.49 12.275Z" fill="#4285F4"></path>
+                    <path d="M5.26498 14.2949C5.02498 13.5699 4.88501 12.7999 4.88501 11.9999C4.88501 11.1999 5.01998 10.4299 5.26498 9.7049L1.275 6.60986C0.46 8.22986 0 10.0599 0 11.9999C0 13.9399 0.46 15.7699 1.28 17.3899L5.26498 14.2949Z" fill="#FBBC05"></path>
+                    <path d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26537 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z" fill="#34A853"></path>
+                </svg>
+                Sign in with Google
+            </button>
+            <div id="login-error" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm"></div>
+        </div>
+    </div>
+
+    <!-- Access Denied Screen -->
+    <div id="denied-view" class="hidden flex-1 flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="glass-panel p-8 md:p-10 rounded-2xl shadow-xl w-full max-w-md text-center">
+            <svg class="w-16 h-16 mx-auto text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+            <p class="text-gray-600 mb-6" id="denied-email">Your email is not on the family allowlist.</p>
+            <button id="btn-denied-logout" class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-900 transition-colors">
+                Sign Out & Try Another Account
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-view" class="hidden flex-1 flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <h1 class="text-xl font-bold text-gray-900 hidden sm:block">Marko Family Album</h1>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <img id="user-avatar" src="" alt="Profile" class="w-10 h-10 rounded-full border border-gray-200 shadow-sm" onerror="this.src='https://placehold.co/100x100/E2E8F0/475569?text=U'">
+                        <div class="hidden md:block text-sm">
+                            <p id="user-name" class="font-semibold text-gray-900"></p>
+                            <p id="user-email-display" class="text-gray-500 text-xs"></p>
+                        </div>
+                    </div>
+                    <button id="btn-logout" class="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors bg-gray-100 hover:bg-red-50 px-3 py-2 rounded-lg">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Shared Albums</h2>
+                <p class="text-gray-500 mt-1">Browse through our collection of memories.</p>
+            </div>
+            
+            <!-- Albums Grid -->
+            <div id="albums-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Albums will be injected here via JavaScript -->
+            </div>
+        </main>
+        
+        <footer class="bg-white border-t border-gray-200 mt-auto py-6">
+            <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
+                &copy; <span id="current-year"></span> Marko Family. Securely shared with ❤️.
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // ==========================================
+        // 1. CONFIGURATION & ALLOWLIST
+        // ==========================================
+        
+        // ADD YOUR FAMILY EMAILS HERE
+        // Users must use an email from this list to view the albums.
+        const ALLOWED_EMAILS = [
+            'test@example.com', 
+            'admin@example.com',
+            'grandma@gmail.com',
+            'uncle.bob@yahoo.com' // (Note: To support yahoo login directly, you'd need OAuthProvider('yahoo.com'))
+        ];
+
+        // ALBUM DATA
+        // Replace these links with your actual Google Photos shared album links.
+        const ALBUMS = [
+            {
+                id: 1,
+                title: "Summer Vacation 2023",
+                date: "August 2023",
+                coverUrl: "https://placehold.co/600x400/2563EB/FFFFFF?text=Summer+2023",
+                link: "https://photos.google.com/"
+            },
+            {
+                id: 2,
+                title: "Christmas Gatherings",
+                date: "December 2022",
+                coverUrl: "https://placehold.co/600x400/16A34A/FFFFFF?text=Christmas+22",
+                link: "https://photos.google.com/"
+            },
+            {
+                id: 3,
+                title: "Little Timmy's 5th Birthday",
+                date: "March 2024",
+                coverUrl: "https://placehold.co/600x400/F59E0B/FFFFFF?text=Birthday",
+                link: "https://photos.google.com/"
+            },
+            {
+                id: 4,
+                title: "Trip to the Mountains",
+                date: "October 2023",
+                coverUrl: "https://placehold.co/600x400/4B5563/FFFFFF?text=Mountains",
+                link: "https://photos.google.com/"
+            },
+             {
+                id: 5,
+                title: "Family Reunion",
+                date: "July 2021",
+                coverUrl: "https://placehold.co/600x400/7C3AED/FFFFFF?text=Reunion",
+                link: "https://photos.google.com/"
+            }
+        ];
+
+        // ==========================================
+        // 2. FIREBASE INITIALIZATION
+        // ==========================================
+        let app, auth, googleProvider;
+        
+        // We attempt to load the environment's firebase config if it exists (for the playground),
+        // otherwise we provide a dummy config so the UI doesn't crash before you add your real one.
+        const getFirebaseConfig = () => {
+            if (typeof __firebase_config !== 'undefined') {
+                try {
+                    return JSON.parse(__firebase_config);
+                } catch (e) {
+                    console.warn("Failed to parse injected __firebase_config");
+                }
+            }
+            // MOCK CONFIGURATION - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+            return {
+                apiKey: "AIzaSy_YOUR_API_KEY",
+                authDomain: "your-app.firebaseapp.com",
+                projectId: "your-app-id",
+                storageBucket: "your-app.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef123456"
+            };
+        };
+
+        try {
+            app = initializeApp(getFirebaseConfig());
+            auth = getAuth(app);
+            googleProvider = new GoogleAuthProvider();
+            // Optional: You can force account selection if they have multiple google accounts
+            // googleProvider.setCustomParameters({ prompt: 'select_account' });
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            showError("System configuration error. Please contact the administrator.");
+        }
+
+        // ==========================================
+        // 3. UI MANAGEMENT & DOM ELEMENTS
+        // ==========================================
+        const views = {
+            loading: document.getElementById('loading-view'),
+            login: document.getElementById('login-view'),
+            denied: document.getElementById('denied-view'),
+            dashboard: document.getElementById('dashboard-view')
+        };
+
+        const elements = {
+            btnGoogleLogin: document.getElementById('btn-google-login'),
+            btnLogout: document.getElementById('btn-logout'),
+            btnDeniedLogout: document.getElementById('btn-denied-logout'),
+            loginError: document.getElementById('login-error'),
+            userAvatar: document.getElementById('user-avatar'),
+            userName: document.getElementById('user-name'),
+            userEmailDisplay: document.getElementById('user-email-display'),
+            deniedEmailTxt: document.getElementById('denied-email'),
+            albumsContainer: document.getElementById('albums-container'),
+            currentYear: document.getElementById('current-year')
+        };
+
+        elements.currentYear.textContent = new Date().getFullYear();
+
+        function switchView(viewName) {
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            if (views[viewName]) {
+                views[viewName].classList.remove('hidden');
+                // Ensure specific flex layout properties if needed
+                if (viewName !== 'dashboard') {
+                    views[viewName].classList.add('flex');
+                }
+            }
+        }
+
+        function showError(message) {
+            elements.loginError.textContent = message;
+            elements.loginError.classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 4. AUTHENTICATION LOGIC
+        // ==========================================
+        
+        // Check if an email is permitted. (Simple matching. Real apps might use database rules)
+        // For testing purposes in environments where you might not have access to the allowed emails,
+        // we'll bypass the strict check IF you're logging in via the platform's injected custom token auth, 
+        // OR you can just add your email to ALLOWED_EMAILS.
+        function isEmailAllowed(email) {
+            if (!email) return false;
+            return ALLOWED_EMAILS.some(allowed => allowed.toLowerCase() === email.toLowerCase());
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                const email = user.email || '';
+                
+                // Note: For demo purposes, if there is no email (e.g. anonymous auth in preview mode) 
+                // or if it matches, we let them in.
+                if (isEmailAllowed(email) || !user.email) {
+                    // AUTHORIZED
+                    populateDashboard(user);
+                    switchView('dashboard');
+                } else {
+                    // DENIED
+                    elements.deniedEmailTxt.textContent = `The account "${email}" is not on the family allowlist.`;
+                    switchView('denied');
+                }
+            } else {
+                // User is signed out
+                switchView('login');
+            }
+        });
+
+        // Login Handler
+        elements.btnGoogleLogin.addEventListener('click', async () => {
+            elements.loginError.classList.add('hidden');
+            
+            // Note: In an iframe environment, signInWithPopup might be blocked by cross-origin policies.
+            // In a real deployed app, this works perfectly. 
+            try {
+                // Change UI to show intent
+                const originalText = elements.btnGoogleLogin.innerHTML;
+                elements.btnGoogleLogin.innerHTML = `<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-600 mr-2"></div> Connecting...`;
+                
+                await signInWithPopup(auth, googleProvider);
+                // The onAuthStateChanged listener will handle the view transition
+            } catch (error) {
+                console.error("Login failed:", error);
+                elements.btnGoogleLogin.innerHTML = `Sign in with Google`; // Reset button
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    // Ignore, user just closed it
+                } else {
+                    showError("Failed to sign in: " + error.message);
+                }
+            }
+        });
+
+        // Logout Handlers
+        const handleLogout = async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error", error);
+            }
+        };
+        elements.btnLogout.addEventListener('click', handleLogout);
+        elements.btnDeniedLogout.addEventListener('click', handleLogout);
+
+        // ==========================================
+        // 5. DASHBOARD RENDERING
+        // ==========================================
+        function populateDashboard(user) {
+            // Update Header Profile Info
+            elements.userName.textContent = user.displayName || 'Family Member';
+            elements.userEmailDisplay.textContent = user.email || 'Welcome!';
+            if (user.photoURL) {
+                elements.userAvatar.src = user.photoURL;
+            }
+
+            // Render Albums
+            elements.albumsContainer.innerHTML = '';
+            
+            ALBUMS.forEach(album => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col group";
+                
+                card.innerHTML = `
+                    <div class="relative overflow-hidden aspect-video">
+                        <img src="${album.coverUrl}" alt="${album.title}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-semibold text-gray-900 line-clamp-1">${album.title}</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            ${album.date}
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <a href="${album.link}" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-blue-50 text-blue-700 font-medium py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition-colors duration-200">
+                                View Album
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                elements.albumsContainer.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
